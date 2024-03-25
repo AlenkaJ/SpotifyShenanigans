@@ -203,9 +203,11 @@ if __name__ == "__main__":
             params = json.load(file)
     pprint(params)
 
+    # setup spotify client
     scopes = ["user-library-read", "playlist-modify-private"]
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
 
+    # setup track reader
     if params["playlists"] is None:
         iterator = iter(SavedTracksReader(sp, batchsize=params["batchsize"]))
     else:
@@ -215,6 +217,7 @@ if __name__ == "__main__":
 
     filtered_zip = []
     duration_ms = 0
+    # while we don't have enough tracks and there are still some left, read more tracks and filter them by features
     while (
         params["max_tracks"] is None or len(filtered_zip) < params["max_tracks"]
     ) and (
@@ -233,11 +236,15 @@ if __name__ == "__main__":
             [features["duration_ms"] for (id, features) in batch_filtered_zip]
         )
 
-    filtered_ids = list(set([id for (id, features) in filtered_zip]))
+    # sort by a given feature value from smallest to largest
     if params["sort_feature"] is not None:
         filtered_zip = sorted(
             filtered_zip, key=lambda pair: pair[1][params["sort_feature"]]
         )
         print([features[params["sort_feature"]] for (id, features) in filtered_zip])
 
+    # get only the ids
+    filtered_ids = [id for (id, features) in filtered_zip]
+    # remove duplicates without losing the ordering
+    filtered_ids = list(dict.fromkeys(filtered_ids))
     make_local_playlist(params["name"], filtered_ids, spotify=sp)
