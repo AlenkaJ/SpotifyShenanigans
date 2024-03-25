@@ -153,7 +153,7 @@ def features_filter(ids: list, features_bounds_dict: dict, spotify):
     ]
     for feature_name in features_bounds_dict.keys():
         feature_bounds = features_bounds_dict[feature_name]
-        if type(feature_bounds) == tuple:
+        if type(feature_bounds) == list:
             lower, upper = feature_bounds
             if lower is not None:
                 filtered_zip = [
@@ -189,11 +189,14 @@ def make_local_playlist(name, track_ids_list, spotify, description=""):
     - spotify: The Spotify API client.
     - description (str): Description of the playlist. Default is an empty string.
     """
-    user = spotify.current_user()
-    playlist = spotify.user_playlist_create(
-        user["id"], name, public=False, collaborative=False, description=description
-    )
-    spotify.playlist_add_items(playlist["id"], track_ids_list)
+    if len(track_ids_list) > 0:
+        user = spotify.current_user()
+        playlist = spotify.user_playlist_create(
+            user["id"], name, public=False, collaborative=False, description=description
+        )
+        spotify.playlist_add_items(playlist["id"], track_ids_list)
+    else:
+        raise Exception("track_ids_list is empty!")
 
 
 if __name__ == "__main__":
