@@ -174,9 +174,7 @@ def features_filter(ids: list, features_bounds_dict: dict, spotify):
                 for id, features in filtered_zip
                 if features[feature_name] == feature_bounds
             ]
-    return [id for (id, features) in filtered_zip], sum(
-        [features["duration_ms"] for (id, features) in filtered_zip]
-    )
+    return filtered_zip
 
 
 def make_local_playlist(name, track_ids_list, spotify, description=""):
@@ -215,21 +213,31 @@ if __name__ == "__main__":
             PlaylistTrackReader(sp, params["playlists"], batchsize=params["batchsize"])
         )
 
-    filtered_ids = []
+    filtered_zip = []
     duration_ms = 0
     while (
-        params["max_tracks"] is None or len(filtered_ids) < params["max_tracks"]
+        params["max_tracks"] is None or len(filtered_zip) < params["max_tracks"]
     ) and (
         params["playlist_duration"] is None or duration_ms < params["playlist_duration"]
     ):
         ids_list = next(iterator, None)
         if ids_list is None:
             break
-        batch_filtered_ids, batch_duration_ms = features_filter(
-            ids_list, features_bounds_dict=params["features_bounds"], spotify=sp
+        batch_filtered_zip = features_filter(
+            ids_list,
+            features_bounds_dict=params["features_bounds"],
+            spotify=sp,
         )
-        filtered_ids += batch_filtered_ids
-        duration_ms += batch_duration_ms
-        batch_filtered_ids = list(set(batch_filtered_ids))
+        filtered_zip += batch_filtered_zip
+        duration_ms += sum(
+            [features["duration_ms"] for (id, features) in batch_filtered_zip]
+        )
+
+    filtered_ids = list(set([id for (id, features) in filtered_zip]))
+    if params["sort_feature"] is not None:
+        filtered_zip = sorted(
+            filtered_zip, key=lambda pair: pair[1][params["sort_feature"]]
+        )
+        print([features[params["sort_feature"]] for (id, features) in filtered_zip])
 
     make_local_playlist(params["name"], filtered_ids, spotify=sp)
