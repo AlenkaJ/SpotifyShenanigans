@@ -59,12 +59,15 @@ class SavedTracksReader:
         Returns the iterator object.
         """
         self.batchnum = 0
+        self.reading = True
         return self
 
     def __next__(self):
         """
         Retrieves the next batch of track IDs.
         """
+        if self.reading is False:
+            raise StopIteration
         results = sp.current_user_saved_tracks(
             limit=self.batchsize, offset=self.batchnum * self.batchsize
         )
@@ -74,6 +77,8 @@ class SavedTracksReader:
         ids = [track["id"] for track in tracks]
         print(names)
         self.batchnum += 1
+        if results["next"] is None:
+            self.reading = False
         return ids
 
 
