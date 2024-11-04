@@ -1,9 +1,32 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from dotenv import load_dotenv
 from pprint import pprint
 from math import ceil
 import sys
 import json
+
+default_params = {
+    "name": "default_playlist",  # name of the new playlist
+    "max_tracks": 50,  # max tracks in the playlist
+    "playlist_duration": None,  # maximal duration of the playlist
+    "playlists": None,  # where to take tracks - if None, take from saved tracks
+    "batchsize": 50,  # Spotify api request batch size
+    "sort_feature": None,  # sort playlist based on this feature
+    "features_bounds": {  # parameters for track filtering, ref: (https://developer.spotify.com/documentation/web-api/reference/get-audio-features)
+        "acousticness": [0, 1],
+        "danceability": [0, 1],
+        "energy": [0, 1],
+        "instrumentalness": [0, 1],
+        "liveness": [0, 1],
+        "speechiness": [0, 1],
+        "valence": [0, 1],
+        "key": None,
+        "mode": None,
+        "tempo": None,
+        "time_signature": None,
+    },
+}
 
 
 class SavedTracksReader:
@@ -145,10 +168,11 @@ def features_filter(ids: list, features_bounds_dict: dict, spotify):
     - filtered_ids (list): Filtered list of track IDs.
     - total_duration (int): Total duration of filtered tracks in milliseconds.
     """
-    features_list = spotify.audio_features(tracks=ids)
+    tracks_feature_list = spotify.audio_features(tracks=ids)
+    # filter tracks that Spotify doesn't provide features for
     filtered_zip = [
         (id, features)
-        for id, features in zip(ids, features_list)
+        for id, features in zip(ids, tracks_feature_list)
         if features is not None
     ]
     for feature_name in features_bounds_dict.keys():
@@ -198,9 +222,14 @@ def make_local_playlist(name, track_ids_list, spotify, description=""):
 
 
 if __name__ == "__main__":
+    load_dotenv()
+
     if len(sys.argv) > 1:
         with open(sys.argv[1], "r") as file:
             params = json.load(file)
+    else:
+        params = default_params
+
     pprint(params)
 
     # setup spotify client

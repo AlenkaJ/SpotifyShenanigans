@@ -1,0 +1,42 @@
+{
+      "name": "default_playlist",
+      "max_tracks": 50,
+      "playlist_duration": null,
+      "playlists": null,
+      "batchsize": 50,
+      "sort_feature": null,
+      "features_bounds": {
+            "acousticness": [
+                  0,
+                  1
+            ],
+            "danceability": [
+                  0,
+                  1
+            ],
+            "energy": [
+                  0,
+                  1
+            ],
+            "instrumentalness": [
+                  0,
+                  1
+            ],
+            "liveness": [
+                  0,
+                  1
+            ],
+            "speechiness": [
+                  0,
+                  1
+            ],
+            "valence": [
+                  0,
+                  1
+            ],
+            "key": null,
+            "mode": null,
+            "tempo": null,
+            "time_signature": null
+      }
+}
