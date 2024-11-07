@@ -2,8 +2,9 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 from pprint import pprint
-from math import inf
+from math import inf, ceil
 from itertools import count
+from alive_progress import alive_bar
 import json
 import pandas as pd
 import duckdb
@@ -21,12 +22,11 @@ def retrieve_albums(max=inf, offset=0, limit=50):
     counter = count(start=0, step=1)
     reading = True
     print("Reading albums ... ")
-    print("batch num, offset, limit")
     while reading:
         batch_num = next(counter)
+        print(batch_num)
         batch_offset = offset + limit * batch_num
         batch_limit = min(limit, max + offset - batch_offset)
-        print(batch_num, batch_offset, batch_limit)
         queue_response = sp.current_user_saved_albums(
             limit=batch_limit, offset=batch_offset
         )
@@ -36,6 +36,18 @@ def retrieve_albums(max=inf, offset=0, limit=50):
     return albums
 
 
+def retrieve_artists_by_id(ids, limit=50):
+    artists = []
+    nbatches = ceil(len(ids) / limit)
+    print("Reading artists ... ")
+    with alive_bar(nbatches, bar="notes", spinner="waves2") as bar:
+        for i in range(nbatches):
+            queue_response = sp.artists(ids[i * limit : (i + 1) * limit])
+            artists += queue_response["artists"]
+            bar()
+    return artists
+
+
 if __name__ == "__main__":
     load_dotenv()
 
@@ -43,6 +55,9 @@ if __name__ == "__main__":
     scopes = ["user-library-read", "playlist-modify-private"]
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
 
+    # list_of_genres = sp.recommendation_genre_seeds()[
+    #    "genres"
+    # ]  # options usable for sp.recommendations
     albums = retrieve_albums()
 
     # DUMP SOME DATA TO JSON TO AVOID PROMPTING SPOTIFY TOO MUCH WHEN FIGURING THINGS OUT
@@ -61,7 +76,6 @@ if __name__ == "__main__":
         "release_date": [],
         "added_at": [],
         "popularity": [],
-        "genres": [],
     }
     artists_database_header_dict = {
         "spotify_id": [],
@@ -81,7 +95,6 @@ if __name__ == "__main__":
             "release_date": album["release_date"],
             "added_at": album_entry["added_at"],
             "popularity": album["popularity"],
-            "genres": album["genres"],
         }
         albums_pandas_df = albums_pandas_df._append(albums_new_row, ignore_index=True)
 
@@ -96,14 +109,17 @@ if __name__ == "__main__":
             )
             artists_pandas_df.drop_duplicates(inplace=True, ignore_index=True)
 
+    # add genres to the artists dataframe
+    artists_list = retrieve_artists_by_id(artists_pandas_df["spotify_id"])
+    genres = [artist["genres"] for artist in artists_list]
+    artists_pandas_df.insert(2, "genres", genres, False)
+
     # print(albums_pandas_df)
     # print(artists_pandas_df)
-    # albums_pandas_df.to_csv("albums.csv")
-    # albums_pandas_df.to_csv("artists.csv")
-
-    # TODO: database for genres?
+    albums_pandas_df.to_csv("albums.csv")
+    artists_pandas_df.to_csv("artists.csv")
 
     # duckdb magic - initialize database
     con = duckdb.connect("albums_database.db")
     con.execute("CREATE TABLE albums AS SELECT * FROM albums_pandas_df")
-    con.execute("SELECT * FROM albums").fetchall()
+    con.close()
