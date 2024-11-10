@@ -55,23 +55,13 @@ if __name__ == "__main__":
     scopes = ["user-library-read", "playlist-modify-private"]
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
 
-    # list_of_genres = sp.recommendation_genre_seeds()[
-    #    "genres"
-    # ]  # options usable for sp.recommendations
     albums = retrieve_albums()
 
-    # DUMP SOME DATA TO JSON TO AVOID PROMPTING SPOTIFY TOO MUCH WHEN FIGURING THINGS OUT
-    # with open("albums_list.json", "w") as jsonfle:
-    #    json.dump(albums, jsonfle, indent=6)
-
-    # with open("albums_list.json", "r") as jsonfle:
-    #     albums = json.load(jsonfle)
-
-    # creating albums and artists databases in pandas first
+    # creating databases in pandas first
+    # database for albums, artists and genres
     albums_database_header_dict = {
         "spotify_id": [],
         "name": [],
-        "artists": [],
         "total_tracks": [],
         "release_date": [],
         "added_at": [],
@@ -81,8 +71,20 @@ if __name__ == "__main__":
         "spotify_id": [],
         "name": [],
     }
+    # database linking the databases together
+    album_artist_database_header_dict = {
+        "album_id": [],
+        "artist_id": [],
+    }
+    artist_genre_database_header_dict = {
+        "artist_id": [],
+        "genre": [],
+    }
+    # initialize dataframes
     albums_pandas_df = pd.DataFrame(albums_database_header_dict)
     artists_pandas_df = pd.DataFrame(artists_database_header_dict)
+    album_artist_pandas_df = pd.DataFrame(album_artist_database_header_dict)
+    artist_genre_pandas_df = pd.DataFrame(artist_genre_database_header_dict)
 
     for album_entry in albums:
         album = album_entry["album"]
@@ -90,7 +92,6 @@ if __name__ == "__main__":
         albums_new_row = {
             "spotify_id": album["id"],
             "name": album["name"],
-            "artists": [artist["name"] for artist in album["artists"]],
             "total_tracks": album["total_tracks"],
             "release_date": album["release_date"],
             "added_at": album_entry["added_at"],
@@ -100,6 +101,7 @@ if __name__ == "__main__":
 
         # loop over the artists and add them to the artists dataframe
         for artist in album["artists"]:
+            # add artist to the artists dataframe
             artists_new_row = {
                 "spotify_id": artist["id"],
                 "name": artist["name"],
@@ -107,19 +109,69 @@ if __name__ == "__main__":
             artists_pandas_df = artists_pandas_df._append(
                 artists_new_row, ignore_index=True
             )
+            # drop duplicates in case it is already there
             artists_pandas_df.drop_duplicates(inplace=True, ignore_index=True)
 
-    # add genres to the artists dataframe
-    artists_list = retrieve_artists_by_id(artists_pandas_df["spotify_id"])
-    genres = [artist["genres"] for artist in artists_list]
-    artists_pandas_df.insert(2, "genres", genres, False)
+            # add album - artist link to the linking database
+            album_artist_new_row = {
+                "album_id": album["id"],
+                "artist_id": artist["id"],
+            }
+            album_artist_pandas_df = album_artist_pandas_df._append(
+                album_artist_new_row, ignore_index=True
+            )
 
-    # print(albums_pandas_df)
-    # print(artists_pandas_df)
+    # add genres to the artists dataframe
+    artist_ids = artists_pandas_df["spotify_id"]
+    for id, artist in zip(artist_ids, retrieve_artists_by_id(artist_ids)):
+        for genre in artist["genres"]:
+            artist_genre_new_row = {
+                "artist_id": id,
+                "genre": genre,
+            }
+            artist_genre_pandas_df = artist_genre_pandas_df._append(
+                artist_genre_new_row, ignore_index=True
+            )
+
+    # set datatypes in the albums
+    albums_pandas_df["spotify_id"] = albums_pandas_df["spotify_id"].astype("string")
+    albums_pandas_df["name"] = albums_pandas_df["name"].astype("string")
+    albums_pandas_df["total_tracks"] = albums_pandas_df["total_tracks"].astype("int32")
+    albums_pandas_df["popularity"] = albums_pandas_df["popularity"].astype("int32")
+    albums_pandas_df["release_date"] = pd.to_datetime(
+        albums_pandas_df["release_date"], format="mixed"
+    )
+    albums_pandas_df["added_at"] = pd.to_datetime(
+        albums_pandas_df["added_at"], format="mixed"
+    )
+
+    # set datatypes in the artists
+    artists_pandas_df["spotify_id"] = artists_pandas_df["spotify_id"].astype("string")
+    artists_pandas_df["name"] = artists_pandas_df["name"].astype("string")
+
+    # set datatypes of the albums artist link
+    album_artist_pandas_df["album_id"] = album_artist_pandas_df["album_id"].astype(
+        "string"
+    )
+    album_artist_pandas_df["artist_id"] = album_artist_pandas_df["artist_id"].astype(
+        "string"
+    )
+
+    # set datatypes if the artist genres link
+    artist_genre_pandas_df["artist_id"] = artist_genre_pandas_df["artist_id"].astype(
+        "string"
+    )
+    artist_genre_pandas_df["genre"] = artist_genre_pandas_df["genre"].astype("string")
+
     albums_pandas_df.to_csv("albums.csv")
     artists_pandas_df.to_csv("artists.csv")
+    album_artist_pandas_df.to_csv("album_artist.csv")
+    artist_genre_pandas_df.to_csv("artist_genre.csv")
 
     # duckdb magic - initialize database
-    con = duckdb.connect("albums_database.db")
+    con = duckdb.connect("database.db")
     con.execute("CREATE TABLE albums AS SELECT * FROM albums_pandas_df")
+    con.execute("CREATE TABLE artists AS SELECT * FROM artists_pandas_df")
+    con.execute("CREATE TABLE album_artist AS SELECT * FROM album_artist_pandas_df")
+    con.execute("CREATE TABLE artist_genre AS SELECT * FROM artist_genre_pandas_df")
     con.close()
