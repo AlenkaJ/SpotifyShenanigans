@@ -170,6 +170,10 @@ if __name__ == "__main__":
 
     # duckdb magic - initialize database
     con = duckdb.connect("database.db")
+    con.execute("DROP TABLE IF EXISTS albums")
+    con.execute("DROP TABLE IF EXISTS artists")
+    con.execute("DROP TABLE IF EXISTS album_artist")
+    con.execute("DROP TABLE IF EXISTS artist_genre")
     con.execute("CREATE TABLE albums AS SELECT * FROM albums_pandas_df")
     con.execute("CREATE TABLE artists AS SELECT * FROM artists_pandas_df")
     con.execute("CREATE TABLE album_artist AS SELECT * FROM album_artist_pandas_df")
