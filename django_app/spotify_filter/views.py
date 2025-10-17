@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views import generic
 
 from . import spotify_import
-from .models import Artist
+from .models import Artist, Album
 
 
 def index(request):
@@ -20,6 +20,23 @@ def importing(request):
 
 class DashboardView(generic.ListView):
     template_name = "spotify_filter/dashboard.html"
+    context_object_name = "artist_list"
 
     def get_queryset(self):
         return Artist.objects.all()
+
+
+class ArtistDetailView(generic.DetailView):
+    model = Artist
+    template_name = "spotify_filter/artist_detail.html"
+
+    def get_queryset(self):
+        return Artist.objects.all()
+
+
+class AlbumDetailView(generic.DetailView):
+    model = Album
+    template_name = "spotify_filter/album_detail.html"
+
+    def get_queryset(self):
+        return Album.objects.all()

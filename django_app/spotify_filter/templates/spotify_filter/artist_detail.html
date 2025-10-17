@@ -1,0 +1,17 @@
+<h1>{{ artist.name }}</h1>
+
+<p>Albums:</p>
+<u1>
+    {% for album in artist.albums.all %}
+        <li><a href="{% url 'spotify_filter:album_detail' album.id %}">{{ album.title }}</a></li>
+    {% endfor %}
+</u1>
+
+<p>Genres:</p>
+<ul>
+    {% for genre in artist.genres.all %}
+        <li>{{ genre.name }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a>

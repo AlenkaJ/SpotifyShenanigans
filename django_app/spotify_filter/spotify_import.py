@@ -18,15 +18,15 @@ def import_from_spotify():
         album_data = album_entry["album"]
         if Album.objects.filter(spotify_id=album_data["id"]).exists():
             # if it doesn't exist, create it
-            album = Album.objects.get(spotify_id=album_data["id"])
-            album.title = album_data["name"]
-            album.total_tracks = int(album_data["total_tracks"])
-            album.release_date = parser.parse(album_data["release_date"])
-            album.added_at = parser.parse(album_entry["added_at"])
-            album.popularity = int(album_data["popularity"])
+            album_obj = Album.objects.get(spotify_id=album_data["id"])
+            album_obj.title = album_data["name"]
+            album_obj.total_tracks = int(album_data["total_tracks"])
+            album_obj.release_date = parser.parse(album_data["release_date"])
+            album_obj.added_at = parser.parse(album_entry["added_at"])
+            album_obj.popularity = int(album_data["popularity"])
         else:
             # if it exists, update it
-            album = Album(
+            album_obj = Album(
                 spotify_id=album_data["id"],
                 title=album_data["name"],
                 total_tracks=int(album_data["total_tracks"]),
@@ -34,14 +34,14 @@ def import_from_spotify():
                 added_at=parser.parse(album_entry["added_at"]),
                 popularity=int(album_data["popularity"]),
             )
-        album.save()
+        album_obj.save()
 
         # create each artist if they don't exist and link to album
         for artist_data in album_data["artists"]:
-            artist, artist_created = Artist.objects.get_or_create(
+            artist_obj, artist_created = Artist.objects.get_or_create(
                 spotify_id=artist_data["id"], name=artist_data["name"]
             )
-            artist.albums.add(album)
+            artist_obj.albums.add(album_obj)
 
     # retrieve genres for all artists
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))

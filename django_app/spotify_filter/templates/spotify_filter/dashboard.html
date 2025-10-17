@@ -1,1 +1,9 @@
-<p>dashboard works!</p>
+{% if artist_list %}
+    <ul>
+    {% for artist in artist_list %}
+        <li><a href="{% url 'spotify_filter:artist_detail' artist.id %}">{{ artist.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No artists are available.</p>
+{% endif %}
