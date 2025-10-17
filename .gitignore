@@ -1,3 +1,8 @@
 .env
 *.pyc
 .cache
+*.log
+*.pot
+*__pycache__*/
+*db.sqlite3
+*.db
