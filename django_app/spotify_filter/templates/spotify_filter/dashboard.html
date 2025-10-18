@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>DataTables HTML example</title>
+    <title>Music Dashboard</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-
-<link href="https://cdn.datatables.net/v/dt/dt-2.3.4/b-3.2.5/r-3.0.7/sc-2.4.3/sp-2.3.5/datatables.min.css" rel="stylesheet" integrity="sha384-DUXxs7to5xbanSTuGrTWzMZmkKMiKplznfFFCt/v/cOmzPByajVgKVjcU/8Bh9EX" crossorigin="anonymous">
- 
-<script src="https://cdn.datatables.net/v/dt/dt-2.3.4/b-3.2.5/r-3.0.7/sc-2.4.3/sp-2.3.5/datatables.min.js" integrity="sha384-gr6j5m/xaM6eHVafPY4C/cXdOQpXybO/MgNDBOaGBEUnH7kMwmUdbQcm22XOJQft" crossorigin="anonymous"></script>
-{% load static %}
-<link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}"/>
-
+    <link href="https://cdn.datatables.net/v/dt/dt-2.3.4/b-3.2.5/r-3.0.7/sc-2.4.3/sp-2.3.5/datatables.min.css" rel="stylesheet" integrity="sha384-DUXxs7to5xbanSTuGrTWzMZmkKMiKplznfFFCt/v/cOmzPByajVgKVjcU/8Bh9EX" crossorigin="anonymous">
+    <script src="https://cdn.datatables.net/v/dt/dt-2.3.4/b-3.2.5/r-3.0.7/sc-2.4.3/sp-2.3.5/datatables.min.js" integrity="sha384-gr6j5m/xaM6eHVafPY4C/cXdOQpXybO/MgNDBOaGBEUnH7kMwmUdbQcm22XOJQft" crossorigin="anonymous"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}"/>
   </head>
   <body>
     <table id="example" class="display" style="width:100%">

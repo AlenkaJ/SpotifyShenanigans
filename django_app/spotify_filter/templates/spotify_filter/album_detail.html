@@ -1,11 +1,35 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
-
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Album Detail</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
+ </head>
+<body>
 <h1>{{ album.title }}</h1>
 
+<p>Artist{{ album.artists.all|pluralize }}: 
+  {% for artist in album.artists.all %}
+    <a href="{% url 'spotify_filter:artist_detail' artist.id %}">{{ artist.name }}</a>{% if not forloop.last %}, {% endif %}
+  {% endfor %}
+</p>
 <p>Total tracks: {{ album.total_tracks }}</p>
 <p>Release date: {{ album.release_date }}</p>
 <p>Added at: {{ album.added_at }}</p>
 <p>Popularity: {{ album.popularity }}</p>
+<p>Listen on Spotify: <a href="https://open.spotify.com/album/{{ album.spotify_id }}" target="_blank">Open Album</a></p>
 
-<a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a>
+<h2>Tracks:</h2>
+<u1>
+  {% for track in album.tracks.all %}
+    <li>
+      {{ track.track_number }}. {{ track.title }} 
+    </li>
+  {% endfor %}
+
+
+<h2><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h2>
+</body>
+</html>

@@ -5,7 +5,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
-from .models import Album, Artist, Genre
+from .models import Album, Artist, Track, Genre
 
 
 def import_from_spotify():
@@ -24,6 +24,10 @@ def import_from_spotify():
             album_obj.release_date = parser.parse(album_data["release_date"])
             album_obj.added_at = parser.parse(album_entry["added_at"])
             album_obj.popularity = int(album_data["popularity"])
+            # takes the first image url, seems to be the one with the highest resolution
+            album_obj.album_cover = (
+                album_data["images"][0]["url"] if album_data["images"] else None
+            )
         else:
             # if it exists, update it
             album_obj = Album(
@@ -33,6 +37,10 @@ def import_from_spotify():
                 release_date=parser.parse(album_data["release_date"]),
                 added_at=parser.parse(album_entry["added_at"]),
                 popularity=int(album_data["popularity"]),
+                # takes the first image url, seems to be the one with the highest resolution
+                album_cover=(
+                    album_data["images"][0]["url"] if album_data["images"] else None
+                ),
             )
         album_obj.save()
 
@@ -41,7 +49,18 @@ def import_from_spotify():
             artist_obj, artist_created = Artist.objects.get_or_create(
                 spotify_id=artist_data["id"], name=artist_data["name"]
             )
-            artist_obj.albums.add(album_obj)
+            album_obj.artists.add(artist_obj)
+        album_obj.save()
+
+        for track_data in album_data["tracks"]["items"]:
+            track_obj, track_created = Track.objects.get_or_create(
+                spotify_id=track_data["id"],
+                title=track_data["name"],
+                track_number=int(track_data["track_number"]),
+                duration_ms=int(track_data["duration_ms"]),
+            )
+            track_obj.albums.add(album_obj)
+            track_obj.save()
 
     # retrieve genres for all artists
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))

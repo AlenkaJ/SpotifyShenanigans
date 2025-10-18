@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Artist, Album
+from .models import Artist, Album, Track
 
 
 class ArtistAdmin(admin.ModelAdmin):
@@ -15,5 +15,11 @@ class AlbumAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
+class TrackAdmin(admin.ModelAdmin):
+    list_display = ("title", "spotify_id")
+    search_fields = ["title"]
+
+
 admin.site.register(Artist, ArtistAdmin)
 admin.site.register(Album, AlbumAdmin)
+admin.site.register(Track, TrackAdmin)
