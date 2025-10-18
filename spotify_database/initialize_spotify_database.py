@@ -163,10 +163,10 @@ if __name__ == "__main__":
     )
     artist_genre_pandas_df["genre"] = artist_genre_pandas_df["genre"].astype("string")
 
-    albums_pandas_df.to_csv("albums.csv")
-    artists_pandas_df.to_csv("artists.csv")
-    album_artist_pandas_df.to_csv("album_artist.csv")
-    artist_genre_pandas_df.to_csv("artist_genre.csv")
+    albums_pandas_df.to_csv("csvs/albums.csv")
+    artists_pandas_df.to_csv("csvs/artists.csv")
+    album_artist_pandas_df.to_csv("csvs/album_artist.csv")
+    artist_genre_pandas_df.to_csv("csvs/artist_genre.csv")
 
     # duckdb magic - initialize database
     con = duckdb.connect("database.db")
