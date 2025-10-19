@@ -15,12 +15,10 @@ def index(request):
 
 
 def importing(request):
-    task = import_spotify_data_task.delay()
+    import_spotify_data_task.delay()
     messages.info(
         request, "Spotify data import has been started. This may take a while."
     )
-    if task.ready():
-        HttpResponseRedirect(reverse("spotify_filter:dashboard"))
     return render(request, "spotify_filter/importing.html")
 
 
