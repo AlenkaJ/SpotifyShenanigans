@@ -1,3 +1,4 @@
+{% load render_table from django_tables2 %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,39 +6,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     {% load static %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}"/>
   </head>
   <body>
-    <table id="dashboard" class="display" style="width:100%">
-        <thead>
-            <tr>
-                <th>Artist</th>
-                <th>Albums</th>
-                <th>Genres</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for artist in artist_list %}
-            <tr>
-                <td><a href="{% url 'spotify_filter:artist_detail' artist.id %}">{{ artist.name }}</a></td>
-                <td>
-                    <ul>
-                    {% for album in artist.albums.all %}
-                        <li><a href="{% url 'spotify_filter:album_detail' album.id %}">{{ album.title }}</a></li>
-                    {% endfor %}
-                    </ul>
-                </td>
-                <td>
-                    <ul>
-                    {% for genre in artist.genres.all %}
-                        <li>{{ genre.name }}</li>
-                    {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% render_table table %}
   </body>
 </html>
 

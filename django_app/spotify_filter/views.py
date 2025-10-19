@@ -3,9 +3,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
+from django_tables2 import SingleTableView
 
 from . import spotify_import
 from .models import Artist, Album
+from .tables import ArtistTable
 
 
 def index(request):
@@ -18,7 +20,9 @@ def importing(request):
     return HttpResponseRedirect(reverse("spotify_filter:dashboard"))
 
 
-class DashboardView(generic.ListView):
+class DashboardView(SingleTableView):
+    model = Artist
+    table_class = ArtistTable
     template_name = "spotify_filter/dashboard.html"
     context_object_name = "artist_list"
 
