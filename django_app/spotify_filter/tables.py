@@ -6,6 +6,8 @@ from .models import Artist
 
 
 class ArtistTable(tables.Table):
+    albums = tables.Column(verbose_name="Albums")
+
     class Meta:
         model = Artist
         template_name = "django_tables2/bootstrap.html"

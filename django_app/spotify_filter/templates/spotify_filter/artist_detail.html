@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
  </head>
 <body>
+<div>
 <h1>{{ artist.name }}</h1>
 
 <h2>Albums:</h2>
@@ -25,7 +26,8 @@
     {% endfor %}
 </ul>
 {% endif %}
+</div>
 
-<h2><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h2>
+<h3><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h3>
 </body>
 </html>

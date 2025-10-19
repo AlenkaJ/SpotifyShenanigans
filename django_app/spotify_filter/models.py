@@ -5,7 +5,11 @@ from django.utils import timezone
 class Album(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=200)
-    artists = models.ManyToManyField("Artist", related_name="albums")
+    artists = models.ManyToManyField(
+        "Artist",
+        related_name="albums",
+        verbose_name="Album Artists",
+    )
     total_tracks = models.IntegerField(default=0)
     release_date = models.DateField(default=timezone.now)
     added_at = models.DateTimeField(default=timezone.now)
@@ -37,8 +41,10 @@ class Track(models.Model):
 
 class Artist(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=200)
-    genres = models.ManyToManyField("Genre")
+    name = models.CharField(max_length=200, verbose_name="Artist Name")
+    genres = models.ManyToManyField(
+        "Genre", related_name="artists", verbose_name="Genres"
+    )
 
     def __str__(self):
         return self.name

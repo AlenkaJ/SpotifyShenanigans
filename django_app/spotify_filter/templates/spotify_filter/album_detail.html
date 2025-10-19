@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
  </head>
 <body>
+
+<div>
 <h1>{{ album.title }}</h1>
 
 <p>Artist{{ album.artists.all|pluralize }}: 
@@ -21,15 +23,19 @@
 <p>Popularity: {{ album.popularity }}</p>
 <p>Listen on Spotify: <a href="https://open.spotify.com/album/{{ album.spotify_id }}" target="_blank">Open Album</a></p>
 
+{% if album.album_cover %}
+  <img src="{{ album.album_cover }}" alt="Album Art" width="640" height="640"/>
+{% endif %}
+
 <h2>Tracks:</h2>
-<u1>
   {% for track in album.tracks.all %}
-    <li>
+    <p>
       {{ track.track_number }}. {{ track.title }} 
-    </li>
+    </p>
   {% endfor %}
+</div>
 
 
-<h2><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h2>
+<h3><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h3>
 </body>
 </html>
