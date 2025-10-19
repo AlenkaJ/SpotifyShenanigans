@@ -1,4 +1,12 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
-
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Importing Spotify Data</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="5;url={% url 'spotify_filter:dashboard' %}">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
+  </head>
+<body>
 <p>Importing ...</p>
+</body>

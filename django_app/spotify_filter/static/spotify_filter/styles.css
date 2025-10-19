@@ -6,10 +6,7 @@ div {
   margin: auto;
   width:fit-content;
   border: 2px solid white;
-  padding-top: 0px;
-  padding-bottom: 30px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding: 30px;
 }
 
 body {
@@ -17,5 +14,5 @@ body {
   font-size: 15px;
   font-family: system-ui, sans-serif;
   color: white;
-  background-color: black;
+  background-color: rgb(39, 39, 39);
 }

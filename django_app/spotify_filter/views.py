@@ -5,9 +5,9 @@ from django.urls import reverse
 from django.views import generic
 from django_tables2 import SingleTableView
 
-from . import spotify_import
 from .models import Artist, Album
 from .tables import ArtistTable
+from .tasks import import_spotify_data_task
 
 
 def index(request):
@@ -15,9 +15,13 @@ def index(request):
 
 
 def importing(request):
-    spotify_import.import_from_spotify()
-    messages.success(request, "Spotify data imported successfully.")
-    return HttpResponseRedirect(reverse("spotify_filter:dashboard"))
+    task = import_spotify_data_task.delay()
+    messages.info(
+        request, "Spotify data import has been started. This may take a while."
+    )
+    if task.ready():
+        HttpResponseRedirect(reverse("spotify_filter:dashboard"))
+    return render(request, "spotify_filter/importing.html")
 
 
 class DashboardView(SingleTableView):

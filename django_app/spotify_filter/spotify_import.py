@@ -1,11 +1,14 @@
 from math import inf, ceil
 from itertools import count
 from dateutil import parser
+import logging
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
 from .models import Album, Artist, Track, Genre
+
+logger = logging.getLogger(__name__)
 
 
 def import_from_spotify():
@@ -78,10 +81,10 @@ def retrieve_albums(sp, max=inf, offset=0, limit=50):
     albums = []
     counter = count(start=0, step=1)
     reading = True
-    print("Reading albums ... ")
+    logger.info("Reading albums ... ")
     while reading:
         batch_num = next(counter)
-        print(batch_num)
+        logger.info(batch_num)
         batch_offset = offset + limit * batch_num
         batch_limit = min(limit, max + offset - batch_offset)
         queue_response = sp.current_user_saved_albums(
@@ -96,9 +99,9 @@ def retrieve_albums(sp, max=inf, offset=0, limit=50):
 def retrieve_artists_by_id(sp, ids, limit=50):
     artists = []
     nbatches = ceil(len(ids) / limit)
-    print("Reading artists ... ")
+    logger.info("Reading artists ... ")
     for i in range(nbatches):
-        print(i)
+        logger.info(i)
         queue_response = sp.artists(ids[i * limit : (i + 1) * limit])
         artists += queue_response["artists"]
     return artists
