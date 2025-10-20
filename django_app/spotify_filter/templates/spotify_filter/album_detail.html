@@ -28,9 +28,9 @@
 {% endif %}
 
 <h2>Tracks:</h2>
-  {% for track in album.tracks.all %}
+  {% for rel in album.albumtrack_set.all %}
     <p>
-      {{ track.track_number }}. {{ track.title }} 
+      {{ rel.track_number }}. {{ rel.track.title }} 
     </p>
   {% endfor %}
 </div>

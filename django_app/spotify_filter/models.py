@@ -2,6 +2,28 @@ from django.db import models
 from django.utils import timezone
 
 
+class Artist(models.Model):
+    spotify_id = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=200, verbose_name="Artist Name")
+    genres = models.ManyToManyField(
+        "Genre", related_name="artists", verbose_name="Genres"
+    )
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def spotify_link(self):
+        return f"https://open.spotify.com/artist/{self.spotify_id}"
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Album(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=200)
@@ -27,9 +49,8 @@ class Album(models.Model):
 class Track(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=200)
-    albums = models.ManyToManyField(Album, related_name="tracks")
-    track_number = models.IntegerField()
-    duration_ms = models.IntegerField()
+    albums = models.ManyToManyField(Album, through="AlbumTrack", related_name="tracks")
+    duration_ms = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -39,19 +60,12 @@ class Track(models.Model):
         return f"https://open.spotify.com/track/{self.spotify_id}"
 
 
-class Artist(models.Model):
-    spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=200, verbose_name="Artist Name")
-    genres = models.ManyToManyField(
-        "Genre", related_name="artists", verbose_name="Genres"
-    )
+class AlbumTrack(models.Model):
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+    track = models.ForeignKey(Track, on_delete=models.CASCADE)
+    track_number = models.IntegerField()
+    disc_number = models.IntegerField(default=0)
 
-    def __str__(self):
-        return self.name
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
+    class Meta:
+        unique_together = ("album", "track")
+        ordering = ["disc_number", "track_number"]

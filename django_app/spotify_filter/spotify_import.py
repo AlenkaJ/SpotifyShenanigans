@@ -6,7 +6,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
-from .models import Album, Artist, Track, Genre
+from .models import Album, Artist, Track, Genre, AlbumTrack
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +58,20 @@ def import_from_spotify():
         for track_data in album_data["tracks"]["items"]:
             track_obj, track_created = Track.objects.get_or_create(
                 spotify_id=track_data["id"],
-                title=track_data["name"],
-                track_number=int(track_data["track_number"]),
-                duration_ms=int(track_data["duration_ms"]),
+                defaults={
+                    "title": track_data["name"],
+                    "duration_ms": int(track_data["duration_ms"]),
+                },
             )
-            track_obj.albums.add(album_obj)
-            track_obj.save()
+            # create link between album and track with track and disc number
+            AlbumTrack.objects.get_or_create(
+                album=album_obj,
+                track=track_obj,
+                defaults={
+                    "track_number": int(track_data["track_number"]),
+                    "disc_number": int(track_data["disc_number"]),
+                },
+            )
 
     # retrieve genres for all artists
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))

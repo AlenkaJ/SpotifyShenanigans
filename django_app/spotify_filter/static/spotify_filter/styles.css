@@ -2,6 +2,14 @@
   box-sizing: border-box;
 }
 
+a:link, a:visited {
+  color:lightsalmon
+}
+
+a:hover, a:active {
+  color:tomato;
+}
+
 div {
   margin: auto;
   width:fit-content;
