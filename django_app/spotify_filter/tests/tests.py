@@ -1,9 +1,11 @@
 from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch
+import json
 
-from .tasks import import_spotify_data_task
-from .models import Album, Artist, Genre, Track, AlbumTrack
+from spotify_filter.tasks import import_spotify_data_task
+from spotify_filter.models import Album, Artist, Genre, Track, AlbumTrack
+from spotify_filter.spotify_import.import_logic import import_from_spotify
 
 
 class AlbumModelTests(TestCase):
@@ -262,15 +264,35 @@ class DashboardViewTests(TestCase):
         self.assertIn(artist2, response.context["artist_list"])
 
 
-class ImportSpotifyDataTests(TestCase):
-    def test_import_spotify_data(self):
-        """Test that the import_spotify_data_task correctly imports data."""
-        # This test would ideally mock the Spotify API responses and check
-        # that the database is populated correctly after running the import task.
-        pass  # TODO
+class ImportSpotifyTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        with open("spotify_filter/tests/data/albums2.json") as f:
+            cls.two_albums = json.load(f)
+        with open("spotify_filter/tests/data/artists2.json") as f:
+            cls.two_artists = json.load(f)
+
+    @patch("spotify_filter.spotify_import.api.SpotifyImporter.retrieve_artists_by_id")
+    @patch("spotify_filter.spotify_import.api.SpotifyImporter.retrieve_albums")
+    def test_import_from_spotify_success(
+        self,
+        mock_retrieve_albums,
+        mock_retrieve_artists_by_id,
+    ):
+        """Test that the import_from_spotify correctly imports data."""
+        mock_retrieve_albums.return_value = self.two_albums
+        mock_retrieve_artists_by_id.return_value = self.two_artists
+
+        import_from_spotify()
+
+        assert Album.objects.count() == 2
+        assert Artist.objects.count() == 2
+        assert Track.objects.count() == 25
+        assert AlbumTrack.objects.count() == 25
 
 
-@patch(".tasks.import_from_spotify")
+@patch("spotify_filter.tasks.import_from_spotify")
 def test_celery_task_runs(mock_import):
     """Test that the import_spotify_data_task calls the import function."""
     import_spotify_data_task()
