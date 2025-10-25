@@ -2,7 +2,7 @@
    
    Analysis of my personal Spotify library using [DuckDB](https://duckdb.org/) and SQL.
 
-<img src="album_months.png" height="300"> <img src="genres.png" height="300">
+<img src="album_months.png" height="220"> <img src="genres.png" height="220">
    
    ## Key Questions Explored
    - What were my album saving trends?
