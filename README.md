@@ -2,12 +2,12 @@
    
    Analysis of my personal Spotify library using [DuckDB](https://duckdb.org/) and SQL.
 
-   ![image](album_months.png) ![image](genres.png)
+<img src="album_months.png" height="300"> <img src="genres.png" height="300">
    
    ## Key Questions Explored
-   - Which artists dominate my collection?
-   - Genre distribution and trends
-   - Album release patterns over time
+   - What were my album saving trends?
+   - Which genres and tags dominate my collection?
+   - Can we find similar artists to a given one?
    
    ## Technical Highlights
    - Complex SQL queries with window functions
