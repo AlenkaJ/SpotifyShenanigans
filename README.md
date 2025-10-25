@@ -18,30 +18,30 @@
    If you want to try this notebook for yourself on your Spotify library, follow these steps:
    1. Clone the repository
 ```bash
-      git clone https://github.com/AlenkaJ/SpotifyShenanigans.git
-      cd SpotifyShenanigans
+git clone https://github.com/AlenkaJ/SpotifyShenanigans.git
+cd SpotifyShenanigans
 ```
    2. Create the virtual environment and install requirements
 ```bash
-      python -m venv venv
-      source venv/bin/activate  # On Windows: venv\Scripts\activate
-      pip install -r requirements.txt
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
    3. Set up Spotify API credentials
       - Create an app at https://developer.spotify.com/dashboard
       - Create `.env` file with your credentials:
 ```
-        SPOTIPY_CLIENT_ID=your_client_id
-        SPOTIPY_CLIENT_SECRET=your_client_secret
-        SPOTIPY_REDIRECT_URI=http://localhost:8888/callback
+SPOTIPY_CLIENT_ID=your_client_id
+SPOTIPY_CLIENT_SECRET=your_client_secret
+SPOTIPY_REDIRECT_URI=http://localhost:8888/callback
 ```
    5. Initialize the database
 ```
-        python initialize_spotify_database.py
+python initialize_spotify_database.py
 ```
    7. Have fun with the notebooks :)
 ```bash
-        jupyter notebook
+jupyter notebook
 ```
 
    ## Key findings
