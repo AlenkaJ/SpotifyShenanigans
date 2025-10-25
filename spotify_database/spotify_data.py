@@ -1,3 +1,5 @@
+"""Definition of functions for retrieving data using Spotipy"""
+
 from itertools import count
 from math import ceil, inf
 

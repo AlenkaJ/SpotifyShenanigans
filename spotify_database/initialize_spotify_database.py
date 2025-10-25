@@ -1,3 +1,5 @@
+"""Script for creating a duckdb database for playing with Spotify and LastFM data"""
+
 import os
 
 import duckdb
@@ -7,13 +9,8 @@ import spotipy
 from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
 
-from last_fm_data import (get_artist_mbid_from_lastfm,
-                          get_artist_mbid_from_musicbrainz)
+from last_fm_data import get_artist_mbid_from_lastfm, get_artist_mbid_from_musicbrainz
 from spotify_data import retrieve_albums, retrieve_artists_by_id
-
-# IDEAS FOR LATER:
-# top_artists = sp.current_user_top_artists()
-# top_tracks = sp.current_user_top_tracks()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+"""Definition of functions for retrieving data from LastFM and MusicBrainz"""
+
 import pylast
 import requests
 
