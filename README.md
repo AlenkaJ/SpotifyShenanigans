@@ -45,7 +45,12 @@
 ```
 
    ## Key findings
-   - My library contains a lot of stuff
+Through this analysis, I discovered:
+- My library contains almost 500 albums from almost 400 artists across 160 genres with more than 600 tags
+- I saved most albums in year 2023, followed by 2022, 2025 and 2024
+- I saved most albums at the start of the year (January, February) and the least albums during summer (June, August)
+- Top genres and tags include: post-rock, slowcore, shoegaze, experimental, electronic, ambient, indie
+- Using genres and tags to search similar artists give significantly different results, which could indicate that using both helped to provide more information
 
    ## Tech Stack
    - Python 3.x
