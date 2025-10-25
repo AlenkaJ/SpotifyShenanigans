@@ -2,7 +2,7 @@
    
    Analysis of my personal Spotify library using [DuckDB](https://duckdb.org/) and SQL.
 
-   TODO: add screenshot here
+   ![image](album_months.png) ![image](genres.png)
    
    ## Key Questions Explored
    - Which artists dominate my collection?
