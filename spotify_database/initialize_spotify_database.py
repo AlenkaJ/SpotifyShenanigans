@@ -1,24 +1,27 @@
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from dotenv import load_dotenv
-from pprint import pprint
-from math import inf, ceil
 from itertools import count
-from alive_progress import alive_bar
-import json
-import pandas as pd
+from math import ceil, inf
+
 import duckdb
+import pandas as pd
+import spotipy
+from alive_progress import alive_bar
+from dotenv import load_dotenv
+from spotipy.oauth2 import SpotifyOAuth
 
 # IDEAS FOR LATER:
 # top_artists = sp.current_user_top_artists()
 # top_tracks = sp.current_user_top_tracks()
 
 
-def retrieve_albums(max=inf, offset=0, limit=50):
+def retrieve_albums(spotify, max_len=inf, offset=0, limit=50):
+    """
+    Get spotify info for the max_len of user's saved albums
+    starting at offset using batches of size limit
+    """
     assert limit > 0
-    assert max > 0
+    assert max_len > 0
     assert offset >= 0
-    albums = []
+    albums_list = []
     counter = count(start=0, step=1)
     reading = True
     print("Reading albums ... ")
@@ -26,25 +29,26 @@ def retrieve_albums(max=inf, offset=0, limit=50):
         batch_num = next(counter)
         print(batch_num)
         batch_offset = offset + limit * batch_num
-        batch_limit = min(limit, max + offset - batch_offset)
-        queue_response = sp.current_user_saved_albums(
+        batch_limit = min(limit, max_len + offset - batch_offset)
+        queue_response = spotify.current_user_saved_albums(
             limit=batch_limit, offset=batch_offset
         )
-        albums += queue_response["items"]
-        if queue_response["next"] is None or len(albums) >= max:
+        albums_list += queue_response["items"]
+        if queue_response["next"] is None or len(albums_list) >= max_len:
             reading = False
-    return albums
+    return albums_list
 
 
-def retrieve_artists_by_id(ids, limit=50):
+def retrieve_artists_by_id(spotify, ids, limit=50):
+    """Get spotify info for a list of artists given by ids using batches of size limit"""
     artists = []
     nbatches = ceil(len(ids) / limit)
     print("Reading artists ... ")
-    with alive_bar(nbatches, bar="notes", spinner="waves2") as bar:
+    with alive_bar(nbatches, bar="notes", spinner="waves2") as load_bar:
         for i in range(nbatches):
-            queue_response = sp.artists(ids[i * limit : (i + 1) * limit])
+            queue_response = spotify.artists(ids[i * limit : (i + 1) * limit])
             artists += queue_response["artists"]
-            bar()
+            load_bar()
     return artists
 
 
@@ -55,7 +59,7 @@ if __name__ == "__main__":
     scopes = ["user-library-read", "playlist-modify-private"]
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
 
-    albums = retrieve_albums()
+    albums = retrieve_albums(sp)
 
     # creating databases in pandas first
     # database for albums, artists and genres
@@ -123,10 +127,10 @@ if __name__ == "__main__":
 
     # add genres to the artists dataframe
     artist_ids = artists_pandas_df["spotify_id"]
-    for id, artist in zip(artist_ids, retrieve_artists_by_id(artist_ids)):
+    for sp_id, artist in zip(artist_ids, retrieve_artists_by_id(sp, artist_ids)):
         for genre in artist["genres"]:
             artist_genre_new_row = {
-                "artist_id": id,
+                "artist_id": sp_id,
                 "genre": genre,
             }
             artist_genre_pandas_df = artist_genre_pandas_df._append(

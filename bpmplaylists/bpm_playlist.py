@@ -1,10 +1,11 @@
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from dotenv import load_dotenv
-from pprint import pprint
-from math import ceil
-import sys
 import json
+import sys
+from math import ceil
+from pprint import pprint
+
+import spotipy
+from dotenv import load_dotenv
+from spotipy.oauth2 import SpotifyOAuth
 
 default_params = {
     "name": "default_playlist",  # name of the new playlist
